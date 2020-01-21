@@ -48,8 +48,19 @@ func TaskAdd(c *gin.Context)  {
 
 func Dispatch(task dao.Task, data dao.TaskData){
 	sites := strings.Split(task.Sites, ",")
-	for site := range sites{
-
+	for siteID := range sites{
+		site := dao.Site{}
+		err := common.GormPool.Where("id = ?", siteID).First(&site).Error
+		if err != nil {
+			panic(err)
+		}
+		if site.ID < 1 {
+			panic("site: " + string(siteID) + " 不存在")
+		}
+		go dispatchWorkerToSite(task, data, site)
 	}
 }
 
+func dispatchWorkerToSite(task dao.Task, data dao.TaskData, site dao.Site)  {
+
+}
